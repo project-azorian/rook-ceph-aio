@@ -1,0 +1,248 @@
+images:
+  applications:
+    toolbox:
+      tag: v1.3.4
+      name: rook/ceph
+      repo: docker.io
+  pull:
+    policy: IfNotPresent
+
+node_labels:
+  toolbox:
+    key: node-role.kubernetes.io/master
+    value: ""
+
+rook-ceph:
+  image:
+    prefix: rook
+    repository: rook/ceph
+    tag: v1.3.4
+    pullPolicy: IfNotPresent
+  nodeSelector:
+    node-role.kubernetes.io/master: ""
+
+over_rides:
+  deployment:
+    toolbox: null
+  cephblockpool:
+    default:
+      spec:
+        failureDomain: host
+  cephcluster:
+    default:
+      spec:
+        dataDirHostPath: /var/lib/rook
+        cephVersion:
+          image: ceph/ceph:v15
+          allowUnsupported: true
+        mon:
+          count: 3
+          allowMultiplePerNode: false
+        dashboard:
+          enabled: true
+        crashCollector:
+          disable: true
+        storage:
+          useAllNodes: false
+          useAllDevices: false
+          nodes:
+            # - name: harbor-k8s-1
+            #   devices:
+            #     - name: sdb
+            #     - name: sdc
+            # - name: harbor-k8s-2
+            #   devices:
+            #     - name: sdb
+            #     - name: sdc
+            # - name: harbor-k8s-3
+            #   devices:
+            #     - name: sdb
+            #     - name: sdc
+            # - name: harbor-k8s-4
+            #   devices:
+            #     - name: sdb
+            #     - name: sdc
+            # - name: harbor-k8s-5
+            #   devices:
+            #     - name: sdb
+            #     - name: sdc
+            # - name: harbor-k8s-6
+            #   devices:
+            #     - name: sdb
+            #     - name: sdc
+        # - name: rdm9r006o001
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r006o002
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r007o001
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r007o002
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c001
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c002
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c003
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c004
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c005
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c006
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c007
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c008
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c009
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c010
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c011
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c012
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c013
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c014
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c015
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c016
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c017
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c018
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c019
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r008c020
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c001
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c002
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c003
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c004
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c005
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c006
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c007
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c008
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c009
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c010
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c011
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c012
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c013
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c014
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c015
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c016
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c017
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c018
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c019
+        #   devices:
+        #   - name: sdd
+        #   - name: sde
+        # - name: rdm9r009c020
+        #   devices:
+        #   - name: sdd
+        #   - name: sde

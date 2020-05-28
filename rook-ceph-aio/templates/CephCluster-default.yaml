@@ -1,0 +1,10 @@
+{{- define "CephCluster-default" -}}
+---
+apiVersion: ceph.rook.io/v1
+kind: CephCluster
+metadata:
+  name: {{ template "helpers.labels.fullname" . }}
+spec: null
+...
+{{- end -}}
+{{- include "helpers.template.overlay" ( dict "Global" $ "template_definition" "CephCluster-default" ) }}
