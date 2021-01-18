@@ -1,0 +1,25 @@
+{{- define "CephFilesystem-default" -}}
+apiVersion: ceph.rook.io/v1
+kind: CephFilesystem
+metadata:
+  name: rook-cephfs
+spec:
+  metadataPool:
+    # For "rack" failure domain the following node label is required:
+    # topology.rook.io/rack=rackname
+    failureDomain: rack
+    replicated:
+      size: 3
+      requireSafeReplicaSize: true
+  dataPools:
+    - failureDomain: rack
+      replicated:
+        size: 3
+        requireSafeReplicaSize: true
+  preserveFilesystemOnDelete: true
+  metadataServer:
+    activeCount: 1
+    activeStandby: true
+...
+{{- end -}}
+{{- include "helpers.template.overlay" ( dict "Global" $ "template_definition" "CephFilesystem-default" ) }}
