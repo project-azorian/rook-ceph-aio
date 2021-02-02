@@ -1,4 +1,5 @@
 {{- define "StorageClassFilesystem-default" -}}
+{{- if .Values.cephfs.enabled -}}
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -29,5 +30,6 @@ parameters:
 reclaimPolicy: Delete
 allowVolumeExpansion: true
 ...
+{{- end -}}
 {{- end -}}
 {{- include "helpers.template.overlay" ( dict "Global" $ "template_definition" "StorageClassFilesystem-default" ) }}

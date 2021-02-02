@@ -36,6 +36,8 @@ rook-ceph:
   nodeSelector:
     kubernetes-apiserver: "enabled"
 
+cephfs:
+  enabled: false
 # requires:
 # - nginx ingress
 # - cert manager
