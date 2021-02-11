@@ -1,7 +1,7 @@
 images:
   applications:
     toolbox:
-      tag: v1.3.4
+      tag: v1.5.4
       name: rook/ceph
       repo: docker.io
   pull:
@@ -9,240 +9,174 @@ images:
 
 node_labels:
   toolbox:
-    key: node-role.kubernetes.io/master
-    value: ""
+    key: kubernetes-apiserver
+    value: "enabled"
 
 rook-ceph:
   image:
     prefix: rook
     repository: rook/ceph
-    tag: v1.3.4
+    tag: v1.5.4
     pullPolicy: IfNotPresent
+  csi:
+    cephfsGrpcMetricsPort: 9092
+    cephfsLivenessMetricsPort: 9082
+    cephcsi:
+      image: quay.io/cephcsi/cephcsi:v3.2.0
+    registrar:
+      image: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.0.1
+    provisioner:
+      image: k8s.gcr.io/sig-storage/csi-provisioner:v2.0.0
+    snapshotter:
+      image: k8s.gcr.io/sig-storage/csi-snapshotter:v3.0.0
+    attacher:
+      image: k8s.gcr.io/sig-storage/csi-attacher:v3.0.0
+    resizer:
+      image: k8s.gcr.io/sig-storage/csi-resizer:v1.0.0
   nodeSelector:
-    node-role.kubernetes.io/master: ""
+    kubernetes-apiserver: "enabled"
+
+cephfs:
+  enabled: false
+# requires:
+# - nginx ingress
+# - cert manager
+# - nginx-cluster ingress class
+dashboard_ingress:
+  enabled: true
 
 over_rides:
   deployment:
     toolbox: null
+  ingress:
+    dashboard:
+      spec:
+        tls:
+          - hosts:
+            - rook-ceph.example.com
+            secretName: rook-ceph.example.com
+        rules:
+          - host: rook-ceph.example.com
+            http:
+              paths:
+                - path: /
+                  backend:
+                    serviceName: rook-ceph-mgr-dashboard
+                    servicePort: https-dashboard
+
   cephblockpool:
     default:
       spec:
-        failureDomain: host
+        # For "rack" failure domain the following node label is required:
+        # topology.rook.io/rack=rackname
+        failureDomain: rack
+        replicated:
+          size: 3
+          requireSafeReplicaSize: true
+  cephfilesystem:
+    default:
+      spec:
+        metadataPool:
+          # For "rack" failure domain the following node label is required:
+          # topology.rook.io/rack=rackname
+          failureDomain: rack
+          replicated:
+            size: 3
+            requireSafeReplicaSize: true
+        dataPools:
+          # For "rack" failure domain the following node label is required:
+          # topology.rook.io/rack=rackname
+          - failureDomain: rack
+            replicated:
+              size: 3
+              requireSafeReplicaSize: true
   cephcluster:
     default:
       spec:
         dataDirHostPath: /var/lib/rook
         cephVersion:
-          image: ceph/ceph:v15
+          image: ceph/ceph:v15.2.8
           allowUnsupported: true
         mon:
           count: 3
           allowMultiplePerNode: false
         dashboard:
           enabled: true
+          ssl: true
+          port: 8443
+        network:
+          provider: host
         crashCollector:
           disable: true
+        # TODO? placement
+        # https://github.com/rook/rook/blob/master/Documentation/ceph-cluster-crd.md#placement-configuration-settings
         storage:
           useAllNodes: false
           useAllDevices: false
           nodes:
-            # - name: harbor-k8s-1
-            #   devices:
-            #     - name: sdb
-            #     - name: sdc
-            # - name: harbor-k8s-2
-            #   devices:
-            #     - name: sdb
-            #     - name: sdc
-            # - name: harbor-k8s-3
-            #   devices:
-            #     - name: sdb
-            #     - name: sdc
-            # - name: harbor-k8s-4
-            #   devices:
-            #     - name: sdb
-            #     - name: sdc
-            # - name: harbor-k8s-5
-            #   devices:
-            #     - name: sdb
-            #     - name: sdc
-            # - name: harbor-k8s-6
-            #   devices:
-            #     - name: sdb
-            #     - name: sdc
-        # - name: rdm9r006o001
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r006o002
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r007o001
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r007o002
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c001
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c002
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c003
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c004
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c005
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c006
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c007
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c008
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c009
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c010
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c011
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c012
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c013
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c014
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c015
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c016
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c017
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c018
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c019
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r008c020
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c001
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c002
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c003
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c004
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c005
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c006
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c007
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c008
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c009
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c010
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c011
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c012
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c013
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c014
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c015
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c016
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c017
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c018
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c019
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
-        # - name: rdm9r009c020
-        #   devices:
-        #   - name: sdd
-        #   - name: sde
+          #  - name: node1
+          #    devices:
+          #      - name: sdd
+          #      - name: sde
+          #      - name: sdf
+          #      - name: sdg
+          #      - name: sdh
+          #      - name: sdi
+          #      - name: sdj
+          #      - name: sdk
+          #      - name: sdl
+          #  - name: node2
+          #    devices:
+          #      - name: sdd
+          #      - name: sde
+          #      - name: sdf
+          #      - name: sdg
+          #      - name: sdh
+          #      - name: sdi
+          #      - name: sdj
+          #      - name: sdk
+          #      - name: sdl
+          #  - name: node3
+          #    devices:
+          #      - name: sdd
+          #      - name: sde
+          #      - name: sdf
+          #      - name: sdg
+          #      - name: sdh
+          #      - name: sdi
+          #      - name: sdj
+          #      - name: sdk
+          #      - name: sdl
+          #  - name: node4
+          #    devices:
+          #      - name: sdd
+          #      - name: sde
+          #      - name: sdf
+          #      - name: sdg
+          #      - name: sdh
+          #      - name: sdi
+          #      - name: sdj
+          #      - name: sdk
+          #      - name: sdl
+          #  - name: node5
+          #    devices:
+          #      - name: sdd
+          #      - name: sde
+          #      - name: sdf
+          #      - name: sdg
+          #      - name: sdh
+          #      - name: sdi
+          #      - name: sdj
+          #      - name: sdk
+          #      - name: sdl
+          #  - name: node6
+          #    devices:
+          #      - name: sdd
+          #      - name: sde
+          #      - name: sdf
+          #      - name: sdg
+          #      - name: sdh
+          #      - name: sdi
+          #      - name: sdj
+          #      - name: sdk
+          #      - name: sdl
