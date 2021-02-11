@@ -1,0 +1,6 @@
+dependencies:
+- name: rook-ceph
+  repository: file://../../../portdirect/rook/cluster/charts/rook-ceph
+  version: 0.0.1
+digest: sha256:b2500c8eea304bf25cb9c5f33434c510067ea5c6fdc939fe6905b22b4a7996c6
+generated: "2020-05-28T17:27:50.992654-05:00"

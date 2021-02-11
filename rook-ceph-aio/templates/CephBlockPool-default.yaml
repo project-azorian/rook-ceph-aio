@@ -2,11 +2,9 @@
 apiVersion: ceph.rook.io/v1
 kind: CephBlockPool
 metadata:
-  name: rook-ceph-block
+  name: {{ template "helpers.labels.fullname" . }}
 spec:
-  # For "rack" failure domain the following node label is required:
-  # topology.rook.io/rack=rackname
-  failureDomain: rack
+  failureDomain: osd
   replicated:
     size: 3
     # Disallow setting pool with replica 1, this could lead to data loss without recovery.

@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rook-ceph-tools
+  name: {{ template "helpers.labels.fullname" . }}
   labels: {{- include "helpers.labels.labels" . | nindent 4 }}
 spec:
   replicas: 1
@@ -23,16 +23,11 @@ spec:
         command: ["/tini"]
         args: ["-g", "--", "/usr/local/bin/toolbox.sh"]
         env:
-          - name: ROOK_CEPH_USERNAME
+          - name: ROOK_ADMIN_SECRET
             valueFrom:
               secretKeyRef:
                 name: rook-ceph-mon
-                key: ceph-username
-          - name: ROOK_CEPH_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: rook-ceph-mon
-                key: ceph-secret
+                key: admin-secret
         volumeMounts:
           - mountPath: /etc/ceph
             name: ceph-config
